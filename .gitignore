@@ -169,3 +169,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Pruning tables
+fs*
+cornerprun
+conj_twist
+move*
+phase*
