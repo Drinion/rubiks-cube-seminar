@@ -238,11 +238,77 @@ class Cube(Ursina):
     def get_sequence_index(self):
         return self.sequence_index
 
+    def set_second_completed(self, val):
+        self.second_completed = val
+
+    def get_second_completed(self):
+        return self.second_completed
+
     def set_last_layer(self, val):
         self.last_layer = val
 
     def get_last_layer(self, val):
         return self.last_layer
+
+    def set_names(self, val):
+        self.names = val
+
+    def get_names(self):
+        return self.names
+
+    def set_pos(self, val):
+        self.pos = val
+
+    def get_pos(self):
+        return self.pos
+
+    def set_solution(self, val):
+        self.solution = val
+
+    def get_solution(self):
+        return self.solution
+
+    def set_no_anim(self, val):
+        self.no_anim = val
+
+    def get_no_anim(self):
+        return self.no_anim
+
+    def set_parent(self, val):
+        self.parent = val
+
+    def get_parent(self):
+        return self.parent
+
+    def set_skip(self, val):
+        self.skip = val
+
+    def get_skip(self):
+        return self.skip
+
+    def set_reset(self, val):
+        self.reset = val
+
+    def get_reset(self):
+        return self.reset
+
+    def set_n_solv_and_n_rot(self, val):
+        self.n_solv_and_n_rot = val
+
+    def get_n_solv_and_n_rot(self):
+        return self.n_solv_and_n_rot
+
+    def set_invocations(self, val):
+        self.invocations = val
+
+    def get_invocations(self):
+        return self.invocations
+
+    def set_optim_sequence(self, val):
+        self.optim_sequence = val
+
+    def get_optim_sequence(self):
+        return self.optim_sequence
 
 if __name__ == '__main__':
     cube = Cube()
