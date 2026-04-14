@@ -12,11 +12,12 @@ import utils
 import stash
 from ursina import *
 
-def check_edges():
+def check_edges(cube):
     edge_count = 0
+    cubelets = cube.get_cubes()
 
-    for index, cube in enumerate(stash.CUBES):
-        for color_cubelet in cube.children:
+    for index, cubelet in enumerate(cubelets):
+        for color_cubelet in cubelet.children:
             world_position = round(color_cubelet.world_position, 1)
             first_cube_pos = utils.find_cube([index, "rg"])
             second_cube_pos = utils.find_cube([index, "rb"])
@@ -31,11 +32,12 @@ def check_edges():
 
     return edge_count % 2 == 0
 
-def check_duplicates():
+def check_duplicates(cube):
     outer_colors = []
+    cubes = cube.get_cubes()
 
-    for index, cube in enumerate(stash.CUBES):
-        outer_colors.append(utils.get_orientation(cube, index))
+    for index, cubelet in enumerate(cubes):
+        outer_colors.append(utils.get_orientation(cubelet, index))
 
     for index_one, outer_color_one in enumerate(outer_colors):
         for index_two, outer_color_two in enumerate(outer_colors):
@@ -44,13 +46,14 @@ def check_duplicates():
 
     return True
 
-def check_middle_pieces():
+def check_middle_pieces(cube):
     middle_pieces_indices = [8,10,12,14,16,25]
+    cubes = cube.get_cubes()
     colors = []
     correct = []
 
-    for index, cube in enumerate(stash.CUBES):
-        for color_cube in cube.children:
+    for index, cubelet in enumerate(cubes):
+        for color_cube in cubelet.children:
             world_position = round(color_cube.world_position, 1)
 
             for side in stash.SIDES_BY_COLOR.values():
@@ -92,18 +95,19 @@ def check_middle_pieces():
 
     return correct == ["b", "r", "y", "o", "w", "g"]
 
-def check_corners():
+def check_corners(cube):
     corner_count = 0
+    cubes = cube.get_cubes()
 
-    for index, cube in enumerate(stash.CUBES):
+    for index, cubelet in enumerate(cubes):
         if index in stash.CORNER_ORIENTATIONS_CLOCKWISEUP["top"]:
-            orientation = utils.get_orientation(cube, index)
+            orientation = utils.get_orientation(cubelet, index)
         elif index in stash.CORNER_ORIENTATIONS_CLOCKWISEUP["bottom"]:
-            orientation = utils.get_orientation(cube, index)
+            orientation = utils.get_orientation(cubelet, index)
         elif index in stash.CORNER_ORIENTATIONS_COUNTERCLOCKWISEUP["top"]:
-            orientation = utils.get_orientation(cube, index)
+            orientation = utils.get_orientation(cubelet, index)
         elif index in stash.CORNER_ORIENTATIONS_COUNTERCLOCKWISEUP["bottom"]:
-            orientation = utils.get_orientation(cube, index)
+            orientation = utils.get_orientation(cubelet, index)
         if orientation[1] == "r" or orientation[1] == "o":
             corner_count += 1
         if orientation[2] == "r" or orientation[2] == "o":
@@ -111,9 +115,11 @@ def check_corners():
 
     return corner_count % 3 == 0
 
-def check_permutation_parity():
+def check_permutation_parity(cube):
     swap_count = 0
-    for index, cube in enumerate(stash.CUBES):
+    cubes = cube.get_cubes()
+
+    for index, cubelet in enumerate(cubes):
         config = stash.ALL_CUBE_CONFIGS[index]
         pos = utils.find_cube(config)
 
@@ -122,12 +128,12 @@ def check_permutation_parity():
 
     return swap_count % 2 == 0
 
-def validate_config():
-    edges_valid = check_edges()
-    corners_valid = check_corners()
-    parity_valid = check_permutation_parity()
-    middle_pieces_valid = check_middle_pieces()
-    no_duplicates_valid = check_duplicates()
+def validate_config(cube):
+    edges_valid = check_edges(cube)
+    corners_valid = check_corners(cube)
+    parity_valid = check_permutation_parity(cube)
+    middle_pieces_valid = check_middle_pieces(cube)
+    no_duplicates_valid = check_duplicates(cube)
     print("EDGES VALID?", edges_valid)
     print("CORNERS VALID?", corners_valid)
     print("PARITY VALID?", parity_valid)
