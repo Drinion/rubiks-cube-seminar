@@ -1,4 +1,5 @@
 from ursina import *
+
 import argparse
 import numpy
 from time import sleep
@@ -16,10 +17,25 @@ class Cube(Ursina):
         self.construct_cube()
         stash.NO_ANIM = False
         self.init_argparse()
+        self.cubes = []
+        self.sequence_index = 0
+        self.second_completed = 0
+        self.last_layer = False
+        self.names = []
+        self.pos = []
+        self.solution = []
+        self.no_anim = False
+        self.parent = ""
+        self.skip = False
+        self.reset = False
+        self.n_solv_and_n_rot = 0
+        self.invocations = 0
+        self.optim_sequence = ""
+
 
     @classmethod
     def reparent_to_scene(self):
-        for cube in stash.CUBES:
+        for cube in self.cubes:
             if cube.parent == stash.PARENT:
                 world_pos, world_rot = round(cube.world_position, 1), cube.world_rotation
                 cube.parent = scene
@@ -30,7 +46,7 @@ class Cube(Ursina):
         stash.PARENT.rotation = 0
 
     def update_cube_pos_names(self):
-        for cube in stash.CUBES:
+        for cube in self.cubes:
             world_pos = round(cube.world_position, 1)
             label = cube.name.split("_")[1]
             cube.name = self.get_name(int(world_pos[0]), int(world_pos[1]), int(world_pos[2]), label)
@@ -70,16 +86,16 @@ class Cube(Ursina):
             for cube in unordered_cubes:
                 name_label_pos = cube.name.split("_")[0]
                 if name_label_pos == label_pos:
-                    stash.CUBES.append(cube)
+                    self.cubes.append(cube)
 
     def emulate_cube(self, content):
         labels = content.split(",")
 
-        for index, cube in enumerate(stash.CUBES):
+        for index, cube in enumerate(self.cubes):
             cube_name_pos = cube.name.split("_")[0]
             cube.name = cube_name_pos + "_" + labels[index] + "-" + f"{index}"
 
-        for cube in stash.CUBES:
+        for cube in self.cubes:
             label = cube.name.split("_")[1].split("-")[0].strip()
             rotation_sequence = stash.ROTATIONS[label]
             self.rotate_cubelet(cube, rotation_sequence)
@@ -99,25 +115,25 @@ class Cube(Ursina):
                     cube.rotation_z += 90
 
     def solving_step(self):
-        index = stash.SEQUENCE_INDEX
+        index = self.get_sequence_index()
 
         if index >= 0 and index < 5:
-            solver.solve_white_cross()
+            solver.solve_white_cross(self)
         elif index >= 5 and index < 8:
-            solver.solve_white_corners()
-        elif index >= 8 and not stash.LAST_LAYER and not utils.check_second_layer():
-            solver.solve_second_layer()
-        elif utils.check_second_layer() and stash.SEQUENCE_INDEX < 12 and not stash.LAST_LAYER:
+            solver.solve_white_corners(self)
+        elif index >= 8 and not self.get_last_layer and not utils.check_second_layer():
+            solver.solve_second_layer(self)
+        elif utils.check_second_layer(self) and stash.SEQUENCE_INDEX < 12 and not self.get_last_layer:
             stash.SEQUENCE_INDEX = 12
-        elif index == 12 and not stash.LAST_LAYER:
-            solver.solve_yellow_cross()
-        elif index == 13 and utils.check_yellow_cross() and not stash.LAST_LAYER:
-            solver.solve_yellow_edges()
-        elif index == 14 and not stash.LAST_LAYER:
-            solver.solve_yellow_corners()
+        elif index == 12 and not self.get_last_layer:
+            solver.solve_yellow_cross(self)
+        elif index == 13 and utils.check_yellow_cross(cube) and not self.get_last_layer:
+            solver.solve_yellow_edges(self)
+        elif index == 14 and not self.get_last_layer:
+            solver.solve_yellow_corners(self)
         elif index >= 15:
-            stash.LAST_LAYER = True
-            solver.orient_yellow_corners()
+            self.set_last_layer(True)
+            solver.orient_yellow_corners(self)
 
     def optim_solve(self):
         solver.optim_solve_cube()
@@ -157,7 +173,7 @@ class Cube(Ursina):
 
         if index != "7":
             side = stash.SIDES[index]
-            for cubelet in stash.CUBES:
+            for cubelet in self.cubes:
                 name = cubelet.name.split("_")[0]
                 if name in side:
                     cubelet.parent = stash.PARENT
@@ -215,6 +231,18 @@ class Cube(Ursina):
             solution = file.readline().strip("\n")
             file.close()
             solver.solve_cube_with_given_string(solution)
+
+    def set_sequence_index(self, index):
+        self.sequence_index = index
+
+    def get_sequence_index(self):
+        return self.sequence_index
+
+    def set_last_layer(self, val):
+        self.last_layer = val
+
+    def get_last_layer(self, val):
+        return self.last_layer
 
 if __name__ == '__main__':
     cube = Cube()

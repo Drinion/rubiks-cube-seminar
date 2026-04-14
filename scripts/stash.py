@@ -1,14 +1,12 @@
-SEQUENCE_INDEX = 0
-CUBES = []
-SECOND_COMPLETED = 0
+#### VARIABLES (MOVE TO CUBE CLASS) ####
+
+#### CONSTANTS ####
+
 SECOND_LAYER_CONFS = [[1, "br"],
                       [5, "bo"],
                       [18, "rg"],
                       [22, "og"]]
-LAST_LAYER = False
-NAMES = []
-POS = []
-SOLUTION = []
+
 ALGO_CONFIGS = [[7, "bw"], [9, "rw"], [15, "ow"], [24, "gw"],
                 [0, "bwr"], [6, "bwo"], [23, "wgo"], [17, "rgw"],
                 [1, "br"], [5, "bo"], [18, "rg"], [22, "og"],
@@ -20,13 +18,6 @@ ALL_CUBE_CONFIGS = [[0, "bwr"],[1, "br"],[2, "byr"],[3, "by"],[4, "boy"],
                     [15, "ow"],[16, "w"],[17, "rgw"],[18, "rg"],[19, "ryg"],
                     [20, "yg"],[21, "yog"],[22, "og"],[23, "owg"], [24, "wg"],
                     [26, "g"]]
-NO_ANIM = False
-PARENT = ""
-SKIP = False
-RESET = False
-N_SOLV_AND_N_ROT = 0
-INVOCATIONS = 0
-OPTIM_SEQUENCE = ""
 
 SIDES = {
     "a": ["110","100","101","111","1-10","11-1","10-1","1-11","1-1-1"],

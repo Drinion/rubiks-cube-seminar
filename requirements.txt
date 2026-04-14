@@ -1,2 +1,5 @@
 ursina
 argparse
+numpy
+optimal
+RubikOptimal
