@@ -13,7 +13,7 @@ def instantiate_sequence(cube):
     if no_anim:
         seq = Sequence(cube.rotate_side)
     else:
-        seq = Sequence(Cube.rotate_side, Wait(1))
+        seq = Sequence(cube.rotate_side, Wait(1))
 
     return seq
 
@@ -29,7 +29,7 @@ def repeat_white_cross_sequence(cube):
     rotations = stash.CROSS_SEQUENCES[pos[-1]]["flip"][pos[-1]]
 
     for index, rotation in enumerate(list(rotations)):
-        rotate_side = Cube.rotate_side
+        rotate_side = cube.rotate_side
         sfl.append(Func(rotate_side, rotation))
         if not no_anim:
             sfl.append(Wait(1))
@@ -43,7 +43,7 @@ def white_cross_sequence(cube):
     pos = cube.get_pos()
     no_anim = cube.get_no_anim()
 
-    curr_pos, name = utils.find_cube(stash.ALGO_CONFIGS[seq_index])
+    curr_pos, name = utils.find_cube(cube, stash.ALGO_CONFIGS[seq_index])
     names.append(name)
     pos.append(curr_pos)
     cube.set_names(name)
@@ -52,7 +52,7 @@ def white_cross_sequence(cube):
     rotations = stash.CROSS_SEQUENCES[stash.ALGO_CONFIGS[seq_index][0]]["regular"][pos[-1]]
 
     for rotation in list(rotations):
-        rotate_side = Cube.rotate_side
+        rotate_side = cube.rotate_side
         sr.append(Func(rotate_side, rotation))
         if not no_anim:
             sr.append(Wait(1))
@@ -67,12 +67,12 @@ def solve_white_cross(cube):
     pos = cube.get_pos()
     no_anim = cube.get_no_anim()
 
-    if seq_index > 0 and not utils.in_position(stash.ALGO_CONFIGS[seq_index-1], names[-1]):
+    if seq_index > 0 and not utils.in_position(cube, stash.ALGO_CONFIGS[seq_index-1], names[-1]):
         print("Repeat white edge", stash.ALGO_CONFIGS[seq_index-1])
-        repeat_white_cross_sequence()
+        repeat_white_cross_sequence(cube)
     else:
         print("White edge")
-        white_cross_sequence()
+        white_cross_sequence(cube)
 
 def repeat_white_corner_sequence(cube):
     seq_index = cube.get_sequence_index()
@@ -116,7 +116,7 @@ def white_corner_sequence(cube, increment):
     pos = cube.get_pos()
     no_anim = cube.get_no_anim()
 
-    curr_pos, name = utils.find_cube(stash.ALGO_CONFIGS[seq_index])
+    curr_pos, name = utils.find_cube(cube, stash.ALGO_CONFIGS[seq_index])
 
     if increment:
         names.append(name)
@@ -128,9 +128,10 @@ def white_corner_sequence(cube, increment):
     rotations = stash.CROSS_SEQUENCES[stash.ALGO_CONFIGS[seq_index][0]]["regular"][pos[-1]]
 
     for rotation in list(rotations):
-        rotate_side = Cube.rotate_side
+        rotate_side = cube.rotate_side
         scr.append(Func(rotate_side, rotation))
-        no_animm:
+
+        if no_anim:
             scr.append(Wait(1))
 
     scr.start()
@@ -146,13 +147,13 @@ def solve_white_corners(cube):
     pos = cube.get_pos()
     no_anim = cube.get_no_anim()
 
-    if not utils.in_position(stash.ALGO_CONFIGS[seq_index-1], names[-1]):
+    if not utils.in_position(cube, stash.ALGO_CONFIGS[seq_index-1], names[-1]):
         repeat_white_corner_sequence(cube)
     elif seq_index == 7:
-        curr_pos, name = utils.find_cube(stash.ALGO_CONFIGS[7])
+        curr_pos, name = utils.find_cube(cube, stash.ALGO_CONFIGS[7])
         pos.append(curr_pos)
         cube.set_pos(pos)
-        in_position = utils.in_position(stash.ALGO_CONFIGS[7], name)
+        in_position = utils.in_position(cube, stash.ALGO_CONFIGS[7], name)
 
         if in_position:
             seq_index += 1
@@ -202,7 +203,7 @@ def update_sequence_index(cube):
     seq_index = cube.get_sequence_index()
     skip = cube.get_skip()
 
-    if seq_index >= 12 and not utils.check_second_layer():
+    if seq_index >= 12 and not utils.check_second_layer(cube):
         cube.set_sequence_index(8)
     else:
         seq_index += 1
@@ -223,7 +224,7 @@ def second_layer_sequence(cube):
 
     cube_configs = stash.ALGO_CONFIGS
     smr = instantiate_sequence(cube)
-    curr_pos, name = utils.find_cube(cube_configs[seq_index])
+    curr_pos, name = utils.find_cube(cube, cube_configs[seq_index])
 
     for cubelet in cubelets:
         if cubelet.name.split("_")[1] == name:
@@ -239,7 +240,7 @@ def second_layer_sequence(cube):
         rotations = stash.CROSS_SEQUENCES[cube_configs[seq_index][0]]["regular"][pos[-1]]
 
         for rotation in list(rotations):
-            smr.append(Func(Cube.rotate_side, rotation))
+            smr.append(Func(cube.rotate_side, rotation))
 
             if not no_anim:
                 smr.append(Wait(1))
@@ -252,7 +253,7 @@ def second_layer_sequence(cube):
     return "All complete"
 
 def is_solvable(cube, config):
-    curr_pos, name = utils.find_cube(config)
+    curr_pos, name = utils.find_cube(cube, config)
     cubelets = cube.get_cubes()
     names = cube.get_names()
     pos = cube.get_pos()
@@ -270,13 +271,13 @@ def is_solvable(cube, config):
     return second_layer_cube.name.split("_")[0] in stash.SIDES["a"]
 
 def is_rotatable(cube, config):
-    curr_pos, name = utils.find_cube(config)
+    curr_pos, name = utils.find_cube(cube, config)
     names = cube.get_names()
     pos = cube.get_pos()
     names.append(name)
     pos.append(curr_pos)
 
-    return curr_pos == config[0] and not utils.in_position(config, names[-1])
+    return curr_pos == config[0] and not utils.in_position(cube, config, names[-1])
 
 def solve(cube, config):
     smr = instantiate_sequence(cube)
@@ -285,7 +286,7 @@ def solve(cube, config):
     rotations = stash.CROSS_SEQUENCES[config[0]]["regular"][pos[-1]]
 
     for rotation in list(rotations):
-        smr.append(Func(Cube.rotate_side, rotation))
+        smr.append(Func(cube.rotate_side, rotation))
         if not no_anim:
             smr.append(Wait(1))
     smr.start()
@@ -316,7 +317,7 @@ def solve_second_layer(cube):
     no_anim = cube.get_no_anim()
     n_solv_and_n_rot = cube.get_n_solv_and_n_rot()
 
-    if seq_index >= 12 and not utils.check_second_layer():
+    if seq_index >= 12 and not utils.check_second_layer(cube):
         cube.set_sequence_index(8)
 
     configs = stash.ALGO_CONFIGS
@@ -367,7 +368,7 @@ def yellow_cross_sequence(cube, yellow_shape):
     sycr.start()
 
 def solve_yellow_cross(cube):
-    solved, shape = utils.check_yellow_cross()
+    solved, shape = utils.check_yellow_cross(cube)
     seq_index = cube.get_sequence_index()
 
     if not solved:
@@ -389,12 +390,12 @@ def yellow_edges_sequence(cube, pos_state):
 
     syed.start()
 
-    if utils.check_yellow_edges().upper() == "BOGR":
+    if utils.check_yellow_edges(cube).upper() == "BOGR":
         seq_index += 1
         cube.set_sequence_index(seq_index)
 
 def solve_yellow_edges(cube):
-    positions_state = utils.check_yellow_edges().upper()
+    positions_state = utils.check_yellow_edges(cube).upper()
     seq_index = cube.get_sequence_index()
 
     if seq_index > 0 and positions_state != "BOGR":
@@ -405,7 +406,7 @@ def solve_yellow_edges(cube):
 
 def yellow_corners_sequence(cube, correct_cube_index):
     syc = instantiate_sequence(cube)
-    in_position, correct_corner_pos = utils.yellow_corners_in_position() # Check if correct_corner_pos is Null
+    in_position, correct_corner_pos = utils.yellow_corners_in_position(cube) # Check if correct_corner_pos is Null
     seq_index = cube.get_sequence_index()
     no_anim = cube.set_no_anim()
 
@@ -420,14 +421,14 @@ def yellow_corners_sequence(cube, correct_cube_index):
             syc.append(Wait(1))
     syc.start()
 
-    in_position, index = utils.yellow_corners_in_position()
+    in_position, index = utils.yellow_corners_in_position(cube)
 
     if in_position:
         seq_index += 1
         cube.set_sequence_index(seq_index)
 
 def solve_yellow_corners(cube):
-    position_state, correct_cube_index = utils.yellow_corners_in_position()
+    position_state, correct_cube_index = utils.yellow_corners_in_position(cube)
     seq_index = cube.get_sequence_index()
 
     if not position_state:
@@ -453,7 +454,7 @@ def rotate_last_layer(cube, rotation):
     no_anim = cube.set_no_anim()
 
     for rotation in list(rotations):
-        rll.append(Func(Cube.rotate_side, rotation))
+        rll.append(Func(cube.rotate_side, rotation))
 
         if not stash.NO_ANIM:
             rll.append(Wait(1))
@@ -461,7 +462,7 @@ def rotate_last_layer(cube, rotation):
     rll.start()
 
 def orient_yellow_corners(cube):
-    oriented, desoriented, last_rotation = utils.yellow_corners_oriented()
+    oriented, desoriented, last_rotation = utils.yellow_corners_oriented(cube)
     seq_index = cube.get_sequence_index()
 
     if not oriented:
@@ -482,7 +483,7 @@ def randomize_cube(cube):
         cube.set_reset(True)
         cube.set_no_anim(True)
 
-    rcc = Sequence(Cube.rotate_side)
+    rcc = Sequence(cube.rotate_side)
 
     for rotation in list(random_rotations):
         rotate_side = cube.rotate_side
@@ -513,7 +514,8 @@ def get_input_string(cube):
             if cubelet.name.split("_")[0] in stash.SIDES[side[1]]:
                 for color_cube in cubelet.children:
                    world_position = round(color_cube.world_position, 1)
-                   position_string = utils.get_color_cubelet_name(world_position[0],
+                   position_string = utils.get_color_cubelet_name(cube,
+                                                                  world_position[0],
                                                                   world_position[1],
                                                                   world_position[2])
                    if position_string in side[0]:
@@ -632,7 +634,7 @@ def animate_optim_sequence(cube):
     sequence = stash.OPTIM_SEQUENCE
 
     for rotation in list(sequence):
-        oss.append(Func(Cube.rotate_side, rotation))
+        oss.append(Func(cube.rotate_side, rotation))
         oss.append(Wait(1))
 
     oss.start()

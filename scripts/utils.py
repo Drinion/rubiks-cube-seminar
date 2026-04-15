@@ -31,15 +31,16 @@ def prepareEntity(parent):
     for color_position in color_positions:
         color_cube = Entity(name=color_position[0], parent=parent, model="cube", color=color.clear, scale=0.1, position=color_position[1])
 
-def find_cube(cube_conf):
+def find_cube(cube, cube_conf):
     required_colors = list(cube_conf[1])
+    cubes = cube.get_cubes()
 
-    for index, cube in enumerate(stash.CUBES):
+    for index, cubelet in enumerate(cubes):
         if index in stash.EDGE_INDICES:
             outer = []
 
             for color in required_colors:
-                for color_cubelet in cube.children:
+                for color_cubelet in cubelet.children:
                     if color_cubelet.name == color:
                         for side in stash.OUTER_SIDES.values():
                             world_position = round(color_cubelet.world_position, 1)
@@ -49,17 +50,17 @@ def find_cube(cube_conf):
 
             if all(iter(outer)) and len(outer) == len(required_colors):
                 for val_index, value in enumerate(stash.LABELS.values()):
-                    if value == cube.name.split("_")[0]:
-                        cube_rot_name = cube.name.split("_")[1]
+                    if value == cubelet.name.split("_")[0]:
+                        cube_rot_name = cubelet.name.split("_")[1]
 
                         return val_index, cube_rot_name
 
-    for index, cube in enumerate(stash.CUBES):
+    for index, cubelet in enumerate(cubes):
         if index not in stash.EDGE_INDICES:
             outer = []
 
             for color in required_colors:
-                for color_cubelet in cube.children:
+                for color_cubelet in cubelet.children:
                     if color_cubelet.name == color:
                         for side in stash.OUTER_SIDES.values():
                             world_position = round(color_cubelet.world_position, 1)
@@ -69,21 +70,22 @@ def find_cube(cube_conf):
 
             if all(iter(outer)) and len(outer) == len(required_colors):
                 for val_index, value in enumerate(stash.LABELS.values()):
-                    if value == cube.name.split("_")[0]:
+                    if value == cubelet.name.split("_")[0]:
                         cube_rot_name = cube.name.split("_")[1]
 
                         return val_index, cube_rot_name
 
-def in_position(cube_config, name):
+def in_position(cube, cube_config, name):
+    cubes = cube.get_cubes()
     if cube_config[1] != "skip":
         first_color = list(cube_config[1])[0]
         second_color = list(cube_config[1])[1]
     else:
         return "Color is Null"
 
-    for cube in stash.CUBES:
-        if cube.name.split("_")[1] == name:
-            flippy_cube = cube
+    for cubelet in cubes:
+        if cubelet.name.split("_")[1] == name:
+            flippy_cube = cubelet
 
     first_side = stash.SIDES_BY_COLOR[first_color]
     second_side = stash.SIDES_BY_COLOR[second_color]
@@ -128,14 +130,15 @@ def check_second_layer():
 
     return found == [1,5,18,22]
 
-def check_yellow_cross():
+def check_yellow_cross(cube):
     yellow_positions = ["1.510","1.501","1.5-10","1.50-1"]
     in_position = []
+    cubes = cube.get_cubes()
 
     for position in yellow_positions:
-        for index, cube in enumerate(stash.CUBES):
-            if cube.name.split("_")[0] in stash.SIDES["a"]:
-                for color_cubelet in cube.children:
+        for index, cubelet in enumerate(cubes):
+            if cubelet.name.split("_")[0] in stash.SIDES["a"]:
+                for color_cubelet in cubelet.children:
                     color_name = color_cubelet.name.split("_")[0]
                     world_position = round(color_cubelet.world_position, 1)
 
@@ -163,14 +166,15 @@ def check_yellow_cross():
 
     return all(iter(in_position)), shape
 
-def check_yellow_edges():
+def check_yellow_edges(cube):
     color_positions = ["11.50","101.5","1-1.50","10-1.5"]
     cube_names = ""
+    cubes = cube.get_cubes()
 
     for position in color_positions:
-        for cube in stash.CUBES:
-            if cube.name.split("_")[0] in stash.SIDES["a"]:
-                for color_cube in cube.children:
+        for cubelet in cubes:
+            if cubelet.name.split("_")[0] in stash.SIDES["a"]:
+                for color_cube in cubelet.children:
                     color_name = color_cube.name.split("_")[0]
                     world_position = round(color_cube.world_position, 1)
 
@@ -237,19 +241,20 @@ def get_orientation(cube, index):
 
     return outer
 
-def yellow_corners_oriented():
+def yellow_corners_oriented(cube):
     cube_configs = [[2, "byr"], [4, "boy"], [19, "ygr"], [21, "ogy"]]
     cube_names = []
     positions_state = []
     desoriented = 0
     corner_state = 0
     corner_orientation = []
+    cubes = cube.get_cubes()
 
     for config_index, config in enumerate(cube_configs):
-        for cube_index, cube in enumerate(stash.CUBES):
-            if cube.name.split("_")[0] == stash.YELLOW_CORNER_POSITIONS[config_index]:
-                desoriented = get_yellow_corner_orientation(cube)
-                corner_orientation.append(get_orientation(cube, config[0]))
+        for cube_index, cubelet in enumerate(cubes):
+            if cubelet.name.split("_")[0] == stash.YELLOW_CORNER_POSITIONS[config_index]:
+                desoriented = get_yellow_corner_orientation(cubelet)
+                corner_orientation.append(get_orientation(cubelet, config[0]))
 
         positions_state.append(desoriented)
 

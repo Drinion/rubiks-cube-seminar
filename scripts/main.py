@@ -11,11 +11,6 @@ import validator
 class Cube(Ursina):
     def __init__(self):
         super().__init__()
-        self.camera = EditorCamera()
-        self.camera.world_position = (0,0,0)
-        window.fullscreen = False
-        self.construct_cube()
-        self.init_argparse()
         self.cubes = []
         self.sequence_index = 0
         self.second_completed = 0
@@ -30,6 +25,11 @@ class Cube(Ursina):
         self.n_solv_and_n_rot = 0
         self.invocations = 0
         self.optim_sequence = ""
+        self.camera = EditorCamera()
+        self.camera.world_position = (0,0,0)
+        window.fullscreen = False
+        self.construct_cube()
+        self.init_argparse()
 
 
     def reparent_to_scene(self):
@@ -40,7 +40,7 @@ class Cube(Ursina):
                 cube.position, cube.rotation = world_pos, world_rot
                 label = cube.name.split("_")[1]
                 cube.name = self.get_name(int(cube.position[0]), int(cube.position[1]), int(cube.position[2]), label)
-    
+
         self.get_parent().rotation = 0
 
     def update_cube_pos_names(self):
@@ -310,6 +310,12 @@ class Cube(Ursina):
 
     def get_optim_sequence(self):
         return self.optim_sequence
+
+    def set_cubes(self, val):
+        self.cubes = val
+
+    def get_cubes(self):
+        return self.cubes
 
 if __name__ == '__main__':
     cube = Cube()
