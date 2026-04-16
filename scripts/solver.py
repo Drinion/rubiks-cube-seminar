@@ -1,6 +1,6 @@
 from ursina import *
 import argparse
-import optimal.solver as sv
+# import optimal.solver as sv
 import numpy
 from time import sleep
 import stash
